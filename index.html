@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Index</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+
+
+    <body>
+        <form id="login" action="javascript:formRequest()" method="POST">
+            <div>
+                <label for="nickname">Apelido:</label>
+                <input id="nickname" type="text" name="nickname" />
+            </div>
+            <div>
+                <label for="room">Sala:</label>
+                <input id="room" type="text" name="room" />
+            </div>
+            <button type="submit" >Entrar</button>
+        </form>
+    </body>
+    <script>
+        function formRequest(){
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify({
+                    nickname: document.getElementById("nickname").value,
+                    room: document.getElementById("room").value
+                }),
+                url : '/chats',
+                contentType: "application/json",
+                dataType: "json",
+                complete : function (response) {
+                    if(response.status > 299){
+                        alert("ERRO: Usuário já existe!");
+                        window.location.href = "/";
+                    } else {
+                        console.log(response);
+                        window.location.href = `/chats?room=${response.responseText}`;
+                    }
+                        
+                }
+            });
+        }
+    </script>
+</html>

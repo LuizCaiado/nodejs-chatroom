@@ -3,10 +3,21 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <title>Room</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
 
     <body>
         <textarea id="output"></textarea>
+
+        <form id="chat" action="javascript:formRequest()" method="POST">
+            <div>
+                <input id="message" type="text" name="message" />
+            </div>
+
+            <button type="submit" >Enviar</button>
+        </form>
+
+
         <script type="text/javascript"charset="utf-8">
         function update() { 
             const urlParam = new URLSearchParams(window.location.search.substring(1));
@@ -22,6 +33,35 @@
             xmlhttp.send();
         } 
         setInterval(update, 1000);
+
+        function formRequest(){
+            const urlParam = new URLSearchParams(window.location.search.substring(1));
+            console.log(urlParam);
+            const room = urlParam.get("room");
+            const nickname = urlParam.get("nickname");
+
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify({
+                    room: room,
+                    nickname: nickname,
+                    message: document.getElementById("message").value
+                }),
+                url : '/messages',
+                contentType: "application/json",
+                dataType: "json",
+                complete : function (response) {
+
+                    if(response.status > 299){
+                        alert("ERRO: Erro no envio da mensagem");
+                    }
+
+                    console.log(response);
+                    update();
+                        
+                }
+            });
+        }
         </script>
     </body>
 

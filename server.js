@@ -55,7 +55,32 @@ function GetChats(res) {
 }
 
 function PostMessages(req, res) {
+    var body = '';
+    req.on('data',function (data){
+        body += data;
+        if(body.lenght > 1000000)
+            req.connection.destroy();
+
+        console.log(JSON.parse(body));
+    });
     
+    req.on('end',function(){
+        var bodyJson = JSON.parse(body);
+
+        const { nickname, room, message } = bodyJson;
+
+    
+        const index = rooms.findIndex((chat) => chat.room === room);
+
+        console.log(index);
+
+        const messageString = `${nickname}: ${message}`;
+
+        rooms[index].messages.push(messageString);
+        
+        res.writeHead(201);
+        res.end();
+    });
 }
 
 function GetMessages(req, res) {

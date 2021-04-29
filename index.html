@@ -21,11 +21,14 @@
     </body>
     <script>
         function formRequest(){
+            const nickname = document.getElementById("nickname").value;
+            const room = document.getElementById("room").value;
             $.ajax({
+
                 type: 'POST',
                 data: JSON.stringify({
-                    nickname: document.getElementById("nickname").value,
-                    room: document.getElementById("room").value
+                    nickname: nickname,
+                    room: room
                 }),
                 url : '/chats',
                 contentType: "application/json",
@@ -36,7 +39,7 @@
                         window.location.href = "/";
                     } else {
                         console.log(response);
-                        window.location.href = `/chats?room=${response.responseText}`;
+                        window.location.href = `/chats?room=${room}&nickname=${nickname}`;
                     }
                         
                 }

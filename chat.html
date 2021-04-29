@@ -2,28 +2,30 @@
 
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
-        <title>Room</title>
+        <title>ChatRoom</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
 
     <body>
-        <textarea id="output"></textarea>
+        <div id="chatbox">
+            <textarea readonly id="output"></textarea>
+        </div>
 
         <form id="chat" action="javascript:formRequest()" method="POST">
             <div>
-                <input id="message" type="text" name="message" />
+                <input id="message"  type="text" name="message" />
             </div>
 
-            <button type="submit" >Enviar</button>
+            <button id="send" type="submit" >Send</button>
         </form>
 
 
         <script type="text/javascript"charset="utf-8">
+
+//updates screen every second by sending request to GET /messages
         function update() { 
             const urlParam = new URLSearchParams(window.location.search.substring(1));
-            console.log(urlParam);
             const room = urlParam.get("room");
-            console.log(room);
             xmlhttp = new XMLHttpRequest(); 
             xmlhttp.open("GET", `/messages?room=${room}`, true); 
             xmlhttp.onreadystatechange = function () { 
@@ -31,15 +33,17 @@
                 document.getElementById("output").value = xmlhttp.responseText; 
             }
             xmlhttp.send();
-        } 
-        setInterval(update, 1000);
+        }
+        setInterval(update, 500);
+        setInterval(refresh,500);
 
+        //prepares request body and sends request to POST /messages when user hits send
         function formRequest(){
+            
             const urlParam = new URLSearchParams(window.location.search.substring(1));
-            console.log(urlParam);
             const room = urlParam.get("room");
             const nickname = urlParam.get("nickname");
-
+            
             $.ajax({
                 type: 'POST',
                 data: JSON.stringify({
@@ -50,19 +54,72 @@
                 url : '/messages',
                 contentType: "application/json",
                 dataType: "json",
+                
+                //API response treatment
                 complete : function (response) {
-
+                    
                     if(response.status > 299){
-                        alert("ERRO: Erro no envio da mensagem");
+                        alert("ERRO: Couldn´t send message");
                     }
-
-                    console.log(response);
-                    update();
-                        
+                    
+                    update();//updates textarea
+                    
                 }
             });
+
+            //Sticks chatbox to the bottom when sending a message
+        }
+        function refresh(){
+            var messageBody = document.getElementById("output");
+            messageBody.scrollTop = messageBody.scrollHeight;
         }
         </script>
     </body>
+
+    <style>
+
+        #chatbox{
+            text-align: center;
+        }
+        #output{
+            font-family: "Lucida Console", "Courier New", monospace;
+            font-weight: bold;
+            background-color: lightgray;
+            height: 700px;
+            width: 800px;
+            resize: none;
+        }
+
+        #chat{
+            text-align: center;
+        }
+        
+        #message {
+            font-family: "Lucida Console", "Courier New", monospace;
+            font-weight: bold;
+            background-color: lightgray;
+            border-radius: 10px;
+            height: 100px;
+            width: 800px;
+        }
+
+        #send{
+            font-family: "Lucida Console", "Courier New", monospace;
+            font-style: normal;
+            text-align: center;
+            background-color: rgb(58, 3, 95);
+            color: lightgray;
+            border-radius: 8px;
+            border: none;
+            width: 100px;
+            height: 50px;
+            margin: 10px;
+        }
+
+        #send:hover{
+            background-color:rgb(49, 11, 80);
+            border: 2px solid rgb(58, 3, 95);
+        }
+    </style>
 
 </html>
